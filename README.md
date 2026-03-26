@@ -56,7 +56,7 @@ sudo apt update && sudo apt upgrade -y
 ### Step 2: Download the Installer
 This command will securely download the core installer script from this repository to your server.
 ```bash
-wget -O /root/clp.sh [https://raw.githubusercontent.com/yeasinulhoquetuhin/VPS-SPEED-LIMIT-MANAGER/refs/heads/master/install.sh](https://raw.githubusercontent.com/yeasinulhoquetuhin/VPS-SPEED-LIMIT-MANAGER/refs/heads/master/install.sh)
+wget -O /root/clp.sh https://raw.githubusercontent.com/yeasinulhoquetuhin/VPS-SPEED-LIMIT-MANAGER/refs/heads/master/install.sh
 ```
 
 ### Step 3: Grant Execution Permissions
