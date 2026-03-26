@@ -1,4 +1,4 @@
-<h1 align="center">⚡ ᴠᴩɴ ɴᴇᴛᴡᴏʀᴋ ʟɪᴍɪᴛ ᴍᴀɴᴀɢᴇᴍᴇɴᴛ ꜱᴄʀɪᴩᴛ</h1>
+<h1 align="center">⚡ ᴠᴩꜱ ꜱᴩᴇᴇᴅ ʟɪᴍɪᴛ ᴍᴀɴᴀɢᴇᴍᴇɴᴛ ꜱᴄʀɪᴩᴛ</h1>
 <h4 align="center">The Ultimate Network Control & Bandwidth Optimizer for Linux Servers</h4>
 
 <p align="center">
@@ -45,20 +45,35 @@ Here is a detailed look at what you can do with this dashboard:
 
 ## 🛠️ Complete Installation Guide
 
-We have combined all the necessary commands into a single block for your convenience. Just copy the entire block below and paste it into your server's terminal. 
+Follow these steps one by one to install the manager on your server. Copy each command box separately and run it in your terminal.
 
-**What these commands will do:**
-1. Update your server's package list (Highly recommended for fresh servers).
-2. Download the core installer script from this repository.
-3. Grant execution permissions to the downloaded file.
-4. Run the installer to set up the environment and network dependencies (`tc`, `ethtool`).
-5. Reload your terminal profile so you can start using the tool immediately.
-
+### Step 1: Update Server Packages
+Highly recommended if you are using a fresh server. This updates your server's package list and upgrades existing packages.
 ```bash
 sudo apt update && sudo apt upgrade -y
+```
+
+### Step 2: Download the Installer
+This command will securely download the core installer script from this repository to your server.
+```bash
 wget -O /root/clp.sh [https://raw.githubusercontent.com/yeasinulhoquetuhin/VPS-SPEED-LIMIT-MANAGER/refs/heads/master/install.sh](https://raw.githubusercontent.com/yeasinulhoquetuhin/VPS-SPEED-LIMIT-MANAGER/refs/heads/master/install.sh)
+```
+
+### Step 3: Grant Execution Permissions
+You need to give the downloaded file permission to run as a program.
+```bash
 chmod +x /root/clp.sh
+```
+
+### Step 4: Run the Setup
+This executes the script to set up the environment, install network dependencies (`tc`, `ethtool`), and create the core files.
+```bash
 sudo bash /root/clp.sh
+```
+
+### Step 5: Reload Terminal Profile
+This applies the newly created dashboard shortcut to your current terminal session immediately.
+```bash
 source ~/.bashrc
 ```
 
