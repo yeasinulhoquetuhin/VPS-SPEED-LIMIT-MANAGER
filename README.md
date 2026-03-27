@@ -2,6 +2,12 @@
 <h4 align="center">The Ultimate Network Control & Bandwidth Optimizer for Linux Servers</h4>
 
 <p align="center">
+  <img src="https://img.shields.io/badge/Version-0.0.5%20BETA-blue?style=for-the-badge&logo=appveyor" alt="Version">
+  <img src="https://img.shields.io/badge/OS-Ubuntu%20%7C%20Debian-orange?style=for-the-badge&logo=linux" alt="OS">
+  <img src="https://img.shields.io/badge/Bash-Script-green?style=for-the-badge&logo=gnu-bash" alt="Bash">
+</p>
+
+<p align="center">
   Easily manage, monitor, and limit your Linux server's network speed with a powerful and visually stunning CLI dashboard.
 </p>
 
