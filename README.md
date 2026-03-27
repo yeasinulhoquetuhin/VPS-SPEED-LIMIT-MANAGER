@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/yeasinulhoquetuhin/VPS-SPEED-LIMIT-MANAGER/refs/heads/master/Screenshot_20260326-194229_com.termux.png" alt="Dashboard Preview" width="85%">
+  <img src="https://raw.githubusercontent.com/yeasinulhoquetuhin/VPS-SPEED-LIMIT-MANAGER/refs/heads/master/Screenshot_20260327-104509_com.termux.png" alt="Dashboard Preview" width="85%">
 </p>
 
 ---
