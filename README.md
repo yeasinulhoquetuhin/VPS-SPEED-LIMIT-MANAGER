@@ -34,8 +34,7 @@ VPS Speed Limit Manager is a powerful, lightweight, and interactive Command Line
 ### ♻️ Core Functionality
 - **Global Server Speed Limit** – Set upload/download limits for the entire server.
 - **Per‑IP/Port Speed Limits** – Apply custom bandwidth restrictions to specific IP addresses or ports.
-- **TCP/UDP Anti‑Share** – Limit the number of concurrent connections on any port (perfect for VPN/proxy sharing).
-- **Port Lock to Single IP** – Whitelist only one IP to connect to a specific port (e.g., your private VPN port).
+- **TCP Anti‑Share** – Limit the number of concurrent connections on any port (perfect for VPN/proxy sharing).
 - **Hardware Optimization** – Disable GRO/TSO for better throughput and lower latency.
 
 ### 🔒 Firewall & Security
@@ -48,7 +47,7 @@ VPS Speed Limit Manager is a powerful, lightweight, and interactive Command Line
 - **Daily Traffic Summary** – View total data used per day.
 - **Monthly Traffic Summary** – Check monthly usage stats.
 - **Connection Manager** – List all active TCP connections and kill connections on any port.
-- **IP Information** – Fetch your server's public IP, country, ISP, ASN, and more (via ip‑api.com).
+- **IP Information** – Fetch your server's public IP, country, ISP, ASN, and more.
 
 ### 🔧 Advanced Management
 - **Multi‑Interface Support** – Automatically detect all available network interfaces, list them with status and IP, and switch between them.
@@ -134,20 +133,13 @@ The main menu offers these options:
 1. `[1]` → Speed Limit Manager  
 2. `[2]` → TCP Limit on Port  
 3. `[1]` → Set Max Connections  
-4. Enter port `443`, max connections `10`, protocol `tcp` (or `both`).
-
-### Lock a port to a single IP (whitelist)
-1. `[1]` → Speed Limit Manager  
-2. `[2]` → TCP Limit on Port  
-3. `[3]` → Lock Port to Single IP  
-4. Enter port (e.g., `15553`) and the allowed IP (e.g., `1.2.3.4`).  
-   > Only that IP can connect; all others are blocked.
+4. Enter port `443`, max connections `10`, protocol `tcp` only.
 
 ### Block an IP address permanently
 1. `[2]` → Firewall Manager  
 2. `[1]` → Block an IP Address  
 3. Enter the IP (e.g., `203.0.113.5`).  
-   > The rule works for both IPv4 and IPv6 (automatically handles `::ffff:` prefixes).
+   > The rule works for both IPv4 and IPv6 (automatically handles).
 
 ### View total traffic since installation
 1. `[4]` → Live Bandwidth  
@@ -183,13 +175,13 @@ Rules survive reboots if you enable “Restart on Reboot”.
 ---
 
 ## 📝 Changelog (V0.0.8 BETA)
+- **Improved:** Empty input handling – pressing Enter reloads the current screen.
+- **Improved:** Interface change menu shows all active interfaces with status and IP.
 - **New:** TCP Connection Limit On Port (BETA).
 - **New:** Multi‑interface detection and selection.
 - **New:** Traffic monitor with daily/monthly.
 - **New:** IP information (country, ISP, ASN, coordinates).
 - **New:** IPv6 support for firewall blocks (automatically converts mapped addresses).
-- **Improved:** Empty input handling – pressing Enter reloads the current screen.
-- **Improved:** Interface change menu shows all active interfaces with status and IP.
 - **New:** Auto Update From Github (No Data Loss)
 - **New:** Script Reinstall Local (No Data Loss) Will Ask You.
 ---
