@@ -182,19 +182,16 @@ Rules survive reboots if you enable “Restart on Reboot”.
 
 ---
 
-## 📝 Changelog (v0.0.8 BETA)
-- **New:** TCP/UDP anti‑share with protocol selection.
-- **New:** Port lock to single IP (whitelist).
+## 📝 Changelog (V0.0.8 BETA)
+- **New:** TCP Connection Limit On Port (BETA).
 - **New:** Multi‑interface detection and selection.
-- **New:** Traffic monitor with daily/monthly totals.
+- **New:** Traffic monitor with daily/monthly.
 - **New:** IP information (country, ISP, ASN, coordinates).
 - **New:** IPv6 support for firewall blocks (automatically converts mapped addresses).
 - **Improved:** Empty input handling – pressing Enter reloads the current screen.
 - **Improved:** Interface change menu shows all active interfaces with status and IP.
-- **Fixed:** View connections now strips `::ffff:` prefixes and aligns columns.
-- **Fixed:** Uninstall cleans both IPv4 and IPv6 rules.
-- **Fixed:** Backup/export shows correct message when no limits exist.
-
+- **New:** Auto Update From Github (No Data Loss)
+- **New:** Script Reinstall Local (No Data Loss) Will Ask You.
 ---
 
 ## 🧑‍💻 Credits & Support
