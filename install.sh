@@ -119,12 +119,7 @@ run_installer() {
     center "${Y}⚡  FIRST-RUN SETUP DETECTED. INITIATING INSTALLATION... ${NC}"; echo
     hline "─" "$DG"; echo
 
-    (
-        if [[ "$SCRIPT_PATH" != "$CLP_BIN" ]]; then
-            printf '#!/bin/bash\nsudo bash "%s" "$@"\n' "$SCRIPT_PATH" | sudo tee "$CLP_BIN" "/usr/local/bin/CLP" "/usr/local/bin/Clp" "/usr/local/bin/cLp" >/dev/null 2>&1
-            sudo chmod +x "$CLP_BIN" "/usr/local/bin/CLP" "/usr/local/bin/Clp" "/usr/local/bin/cLp" >/dev/null 2>&1
-        fi
-    ) & spin $! "CREATING GLOBAL 'CLP' SHORTCUTS"
+    (printf '#!/bin/bash\nsudo bash %s "$@"\n' "$SCRIPT_PATH" | sudo tee "$CLP_BIN" "/usr/local/bin/CLP" "/usr/local/bin/Clp" "/usr/local/bin/cLp" >/dev/null 2>&1 && sudo chmod +x "$CLP_BIN" "/usr/local/bin/CLP" "/usr/local/bin/Clp" "/usr/local/bin/cLp" >/dev/null 2>&1) & spin $! "CREATING GLOBAL 'CLP' SHORTCUTS"
     
     (if [ -f "$HOME/.bashrc" ]; then sed -i '/alias clp=/d; /alias CLP=/d; /alias Clp=/d; /alias cLp=/d' "$HOME/.bashrc" 2>/dev/null; echo -e "alias clp='sudo bash $SCRIPT_PATH'\nalias CLP='sudo bash $SCRIPT_PATH'\nalias Clp='sudo bash $SCRIPT_PATH'\nalias cLp='sudo bash $SCRIPT_PATH'" >> "$HOME/.bashrc"; fi) & spin $! "CONFIGURING ~/.BASHRC ALIASES"
     
@@ -729,7 +724,7 @@ show_ip_info() {
     echo; hline; echo -e "  ${DG}PRESS ENTER TO RETURN...${NC}"; read -r
 }
 
-# ── 0. Script Manager (FIXED) ──────────────────────────────────────────────────
+# ── 0. Script Manager ─────────────────────────────────────────────────────────
 script_manager() {
     while true; do
         clear; hline; center "${C}⚙️  SCRIPT MANAGER • VERSION: ${VERSION}${NC}"; hline; echo
@@ -755,22 +750,13 @@ script_manager() {
                 (sleep 0.5) & spin $! "CHECKING FOR UPDATES"
                 sleep 0.5
                 
-                (wget -q -O "$TEMP_SCRIPT" "https://raw.githubusercontent.com/yeasinulhoquetuhin/VPS-SPEED-LIMIT-MANAGER/refs/heads/master/install.sh") & spin $! "DOWNLOADING LATEST VERSION"
+                # 🔁 FIXED: Download the MAIN script, not the installer
+                (wget -q -O "$TEMP_SCRIPT" https://raw.githubusercontent.com/yeasinulhoquetuhin/VPS-SPEED-LIMIT-MANAGER/refs/heads/master/clp.sh) & spin $! "DOWNLOADING LATEST VERSION"
                 sleep 0.5
                 
                 if [[ -s "$TEMP_SCRIPT" ]]; then
-                    # CRITICAL FIX: Remove Windows line endings (\r) that cause Bash hangs
-                    (sed -i 's/\r$//' "$TEMP_SCRIPT" 2>/dev/null) & spin $! "FIXING SCRIPT INTEGRITY"
-                    
-                    # Ensure it's the actual script, not an empty file
-                    if ! grep -q "TDZ NETWORK CONTROL" "$TEMP_SCRIPT"; then
-                        echo -e "\n  ${R}✘ ERROR: DOWNLOADED SCRIPT IS INVALID.${NC}"
-                        echo -e "  ${DG}UPDATE ABORTED TO PREVENT SYSTEM CRASH.${NC}"
-                        rm -f "$TEMP_SCRIPT"
-                        sleep 3
-                        return
-                    fi
                     (sleep 0.5) & spin $! "VERIFYING INTEGRITY"
+                    sleep 0.5
                 else
                     echo -e "\n  ${R}✘ DOWNLOAD FAILED. UPDATE ABORTED.${NC}"
                     sleep 2
@@ -780,11 +766,9 @@ script_manager() {
                 (cp "$SCRIPT_PATH" "$BACKUP_SCRIPT" 2>/dev/null) & spin $! "BACKING UP CURRENT SCRIPT"
                 sleep 0.5
                 
-                (chmod +x "$TEMP_SCRIPT") & spin $! "PREPARING INSTALLATION"
+                (chmod +x "$TEMP_SCRIPT") & spin $! "INSTALLING UPDATE"
                 sleep 0.5
-                
-                # CRITICAL FIX: Use cat instead of mv to preserve inode and prevent fork-bombs
-                (cat "$TEMP_SCRIPT" > "$SCRIPT_PATH" && rm -f "$TEMP_SCRIPT") & spin $! "FINALIZING UPDATE"
+                (mv "$TEMP_SCRIPT" "$SCRIPT_PATH") & spin $! "FINALIZING INSTALLATION"
                 sleep 0.5
                 
                 (rm -f "$BACKUP_SCRIPT" 2>/dev/null) & spin $! "CLEANING UP"
@@ -801,27 +785,36 @@ script_manager() {
                 exit 0
                 ;;
             2)
-                echo; confirm "REINSTALL SCRIPT? (CORE FILES WILL BE RESET)" || return; echo
-                
-                local keep_data="y"
-                echo -e -n "  ${Y}⚠  KEEP EXISTING DATA (RULES & LIMITS)? ${DG}[Y/N]${NC} ${C}›${NC} "
-                read -r keep_ans
-                [[ "${keep_ans,,}" == "n" ]] && keep_data="n"
-
-                (sudo tc qdisc del dev "$INTERFACE" root 2>/dev/null; sudo tc qdisc del dev "$INTERFACE" ingress 2>/dev/null; sudo tc qdisc del dev ifb0 root 2>/dev/null) & spin $! "CLEARING NETWORK RULES"
-                
-                rm -f "$INSTALL_FLAG"
-                echo "#!/bin/bash" > "$RULES_FILE"
-                
-                if [[ "$keep_data" == "n" ]]; then
-                    > "$DB_FILE"
-                    echo -e "\n  ${G}✔ ALL DATA CLEARED. READY FOR REINSTALL.${NC}"
-                else
-                    echo -e "\n  ${G}✔ DATA KEPT SAFE. READY FOR REINSTALL.${NC}"
-                fi
-                
-                echo -e -n "\n  ${DG}PRESS ENTER TO CONTINUE...${NC}"; read -r
-                run_installer
+                echo
+                echo -e "  ${Y}⚠  REINSTALL SCRIPT?${NC}"
+                echo -e "  ${G}[1]${NC} KEEP EXISTING LIMITS (DATABASE)"
+                echo -e "  ${G}[2]${NC} CLEAR ALL LIMITS (FRESH START)"
+                echo -e "  ${DG}[0]${NC} CANCEL"
+                echo -e -n "\n  ${C}SELECT OPTION:${NC} "
+                read -r reinstall_choice
+                case "$reinstall_choice" in
+                    1)
+                        # Keep database – just clear network rules
+                        (sudo tc qdisc del dev "$INTERFACE" root 2>/dev/null; sudo tc qdisc del dev "$INTERFACE" ingress 2>/dev/null; sudo tc qdisc del dev ifb0 root 2>/dev/null) & spin $! "CLEARING NETWORK RULES"
+                        echo "#!/bin/bash" > "$RULES_FILE"
+                        echo -e "\n  ${G}✔ READY FOR REINSTALL (DATABASE KEPT). PRESS ENTER...${NC}"
+                        read -r
+                        run_installer
+                        ;;
+                    2)
+                        confirm "CLEAR ALL RULES AND REINSTALL?" || return
+                        (sudo tc qdisc del dev "$INTERFACE" root 2>/dev/null; sudo tc qdisc del dev "$INTERFACE" ingress 2>/dev/null; sudo tc qdisc del dev ifb0 root 2>/dev/null) & spin $! "CLEARING NETWORK RULES"
+                        echo "#!/bin/bash" > "$RULES_FILE"
+                        rm -f "$INSTALL_FLAG"
+                        > "$DB_FILE"
+                        echo -e "\n  ${G}✔ READY FOR REINSTALL (DATABASE CLEARED). PRESS ENTER...${NC}"
+                        read -r
+                        run_installer
+                        ;;
+                    0|*)
+                        return
+                        ;;
+                esac
                 ;;
             3) uninstall_clp ;;
             0) return ;;
@@ -892,7 +885,7 @@ backup_export() {
     ) & spin $! "CREATING BACKUP FILE"
     (sleep 0.5) & spin $! "EXPORTING TO $EXPORT_FILE"
     echo -e "\n  ${G}✔ EXPORTED! FILE SAVED AT : ${C}$EXPORT_FILE${NC}"
-    echo -e "\n  ${DG}PRESS ENTER TO RETURN HOME...${NC}"
+    echo -e "\n  ${DG}PRESS ENTER TO RETURN...${NC}"
     read -r
 }
 
