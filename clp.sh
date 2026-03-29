@@ -820,70 +820,127 @@ script_manager() {
         fi
         (sleep 0.3) & spin $! "VERIFYING INTEGRITY"
     else
-        echo -e "\n  ${R}✘ DOWNLOAD FAILED. CHECK CONNECTION.${NC}"
-        sleep 2
-        continue
-    fi
+# ── 0. Script Manager (FIXED & BEAUTIFIED) ────────────────────────────────────
+script_manager() {
+    while true; do
+        clear; hline; center "${C}⚙️  SCRIPT MANAGER • VERSION: ${VERSION}${NC}"; hline; echo
+        echo -e "  ${G}[1]${NC} UPDATE SCRIPT"
+        echo -e "  ${G}[2]${NC} REINSTALL SCRIPT"
+        echo -e "  ${G}[3]${NC} UNINSTALL SCRIPT"
+        echo -e "  ${DG}[0]${NC} BACK TO MAIN MENU"
+        echo -e -n "\n  ${G}▶${NC} SELECT OPTION ${DG}[0-3]${NC} ${C}›${NC} "
+        read -r sm_choice
+        [[ -z "$sm_choice" ]] && continue
+        case "$sm_choice" in
+        1) 
+            clear
+            echo -e "  ${C}┌──────────────────────────────────────────────────────────┐${NC}"
+            center "${C}🔄 SCRIPT UPDATER ${NC}"
+            echo -e "  ${C}└──────────────────────────────────────────────────────────┘${NC}"
+            echo
 
-    (cp "$SCRIPT_PATH" "$BACKUP_SCRIPT" 2>/dev/null) & spin $! "BACKING UP CURRENT CONFIGURATION"
-    sleep 0.3
-    (chmod +x "$TEMP_SCRIPT") & spin $! "PREPARING INSTALLATION"
-    sleep 0.3
-    (cat "$TEMP_SCRIPT" > "$SCRIPT_PATH" && rm -f "$TEMP_SCRIPT") & spin $! "INSTALLING UPDATE"
-    sleep 0.3
-    (rm -f "$BACKUP_SCRIPT" 2>/dev/null) & spin $! "CLEANING UP TEMPORARY FILES"
+            (sleep 0.5) & spin $! "CHECKING GITHUB FOR UPDATES"
 
-    echo -e "\n  ${G}✔ SCRIPT UPDATED SUCCESSFULLY!${NC}\n"
-    echo -e "  ${DG}PLEASE RESTART THE DASHBOARD BY TYPING:${NC} ${C}clp${NC}\n"
-    echo -e -n "  ${DG}PRESS ENTER TO EXIT...${NC}"
-    read -r
-    exit 0
-    ;;
-            2)
-                echo
-                echo -e "  ${Y}⚠  REINSTALL SCRIPT?${NC}"
-                echo -e "  ${G}[1]${NC} KEEP EXISTING DATABASE"
-                echo -e "  ${G}[2]${NC} CLEAR EXISTING DATABASE"
-                echo -e "  ${DG}[0]${NC} CANCEL"
-                echo
-                echo -e -n "  ${C}SELECT OPTION:${NC} "
-                read -r ri_choice
+            local REPO_URL="https://raw.githubusercontent.com/yeasinulhoquetuhin/VPS-SPEED-LIMIT-MANAGER/refs/heads/master/clp.sh"
+            local TEMP_SCRIPT="/tmp/tdz_update_$$.sh"
 
-                local keep_data="y"
-                if [[ "$ri_choice" == "1" ]]; then
-                    echo; confirm "KEEP EXISTING DATA AND REINSTALL?" || continue; echo
-                    keep_data="y"
-                elif [[ "$ri_choice" == "2" ]]; then
-                    echo; confirm "CLEAR ALL DATA AND REINSTALL?" || continue; echo
-                    keep_data="n"
-                elif [[ "$ri_choice" == "0" ]]; then
-                    continue
-                else
-                    echo -e "\n  ${R}✘ INVALID SELECTION.${NC}"; sleep 1; continue
-                fi
+            # Downloading the file directly from GitHub
+            (curl -s --max-time 10 "$REPO_URL" > "$TEMP_SCRIPT") & spin $! "DOWNLOADING LATEST SCRIPT"
 
-                (sudo tc qdisc del dev "$INTERFACE" root 2>/dev/null; sudo tc qdisc del dev "$INTERFACE" ingress 2>/dev/null; sudo tc qdisc del dev ifb0 root 2>/dev/null) & spin $! "CLEARING NETWORK RULES"
-                
-                rm -f "$INSTALL_FLAG"
-                echo "#!/bin/bash" > "$RULES_FILE"
-                
-                if [[ "$keep_data" == "n" ]]; then
-                    > "$DB_FILE"
-                    echo -e "\n  ${G}✔ ALL DATA CLEARED. READY FOR REINSTALL.${NC}"
-                else
-                    echo -e "\n  ${G}✔ DATA KEPT SAFE. READY FOR REINSTALL.${NC}"
-                fi
-                
-                echo -e -n "\n  ${DG}PRESS ENTER TO CONTINUE...${NC}"; read -r
-                run_installer
-                ;;
-            3) uninstall_clp ;;
-            0) return ;;
-            *) sleep 1 ;;
+            if [[ ! -s "$TEMP_SCRIPT" ]]; then
+                echo -e "\n  ${R}✘ CRITICAL ERROR: COULD NOT DOWNLOAD SCRIPT.${NC}"
+                sleep 3
+                continue
+            fi
+
+            # Cleaning hidden Windows characters to prevent terminal hang
+            sed -i 's/\r$//' "$TEMP_SCRIPT" 2>/dev/null
+
+            # Checking the remote version directly from the downloaded file
+            local REMOTE_VERSION=$(grep -m 1 '^VERSION=' "$TEMP_SCRIPT" | cut -d'"' -f2)
+
+            if [[ -z "$REMOTE_VERSION" ]]; then
+                echo -e "\n  ${R}✘ ERROR: COULD NOT DETECT VERSION IN GITHUB SCRIPT.${NC}"
+                rm -f "$TEMP_SCRIPT"
+                sleep 3
+                continue
+            fi
+
+            echo -e "\n  ${DG}------------------------------------------------------------${NC}"
+            echo -e "  ${C}▶ CURRENT VERSION : ${W}${VERSION}${NC}"
+
+            if [[ "$VERSION" == "$REMOTE_VERSION" ]]; then
+                echo -e "  ${C}▶ LATEST VERSION  : ${Y}${REMOTE_VERSION} ${DG}(UP TO DATE)${NC}"
+                echo -e "  ${DG}------------------------------------------------------------${NC}\n"
+                echo -e "  ${G}✔ YOU ALREADY HAVE THE LATEST VERSION!${NC}\n"
+                confirm "UPDATE ANYWAY? (DATA WILL BE SAFE)" || { rm -f "$TEMP_SCRIPT"; continue; }
+            else
+                echo -e "  ${C}▶ LATEST VERSION  : ${Y}${REMOTE_VERSION} ${M}(UPDATE AVAILABLE)${NC}"
+                echo -e "  ${DG}------------------------------------------------------------${NC}\n"
+                echo -e "  ${G}✨ A NEW VERSION IS AVAILABLE!${NC}\n"
+                confirm "INSTALL LATEST VERSION? (DATA WILL BE SAFE)" || { rm -f "$TEMP_SCRIPT"; continue; }
+            fi
+            echo
+
+            (
+                # Overwriting the original script and all global clp shortcuts
+                cat "$TEMP_SCRIPT" | sudo tee "$CLP_BIN" "/usr/local/bin/CLP" "/usr/local/bin/Clp" "/usr/local/bin/cLp" >/dev/null 2>&1
+                cat "$TEMP_SCRIPT" > "$SCRIPT_PATH" 2>/dev/null
+                sudo chmod +x "$CLP_BIN" "/usr/local/bin/CLP" "/usr/local/bin/Clp" "/usr/local/bin/cLp" "$SCRIPT_PATH" >/dev/null 2>&1
+            ) & spin $! "INSTALLING UPDATE GLOBALLY"
+            
+            rm -f "$TEMP_SCRIPT"
+
+            echo -e "\n  ${G}✔ SCRIPT UPDATED SUCCESSFULLY TO ${REMOTE_VERSION}!${NC}\n"
+            echo -e "  ${DG}PLEASE RESTART THE DASHBOARD BY TYPING:${NC} ${C}clp${NC}\n"
+            echo -e -n "  ${DG}PRESS ENTER TO EXIT...${NC}"
+            read -r
+            exit 0
+            ;;
+        2)
+            echo
+            echo -e "  ${Y}⚠  REINSTALL SCRIPT?${NC}"
+            echo -e "  ${G}[1]${NC} KEEP EXISTING DATABASE"
+            echo -e "  ${G}[2]${NC} CLEAR EXISTING DATABASE"
+            echo -e "  ${DG}[0]${NC} CANCEL"
+            echo
+            echo -e -n "  ${C}SELECT OPTION:${NC} "
+            read -r ri_choice
+
+            local keep_data="y"
+            if [[ "$ri_choice" == "1" ]]; then
+                echo; confirm "KEEP EXISTING DATA AND REINSTALL?" || continue; echo
+                keep_data="y"
+            elif [[ "$ri_choice" == "2" ]]; then
+                echo; confirm "CLEAR ALL DATA AND REINSTALL?" || continue; echo
+                keep_data="n"
+            elif [[ "$ri_choice" == "0" ]]; then
+                continue
+            else
+                echo -e "\n  ${R}✘ INVALID SELECTION.${NC}"; sleep 1; continue
+            fi
+
+            (sudo tc qdisc del dev "$INTERFACE" root 2>/dev/null; sudo tc qdisc del dev "$INTERFACE" ingress 2>/dev/null; sudo tc qdisc del dev ifb0 root 2>/dev/null) & spin $! "CLEARING NETWORK RULES"
+            
+            rm -f "$INSTALL_FLAG"
+            echo "#!/bin/bash" > "$RULES_FILE"
+            
+            if [[ "$keep_data" == "n" ]]; then
+                > "$DB_FILE"
+                echo -e "\n  ${G}✔ ALL DATA CLEARED. READY FOR REINSTALL.${NC}"
+            else
+                echo -e "\n  ${G}✔ DATA KEPT SAFE. READY FOR REINSTALL.${NC}"
+            fi
+            
+            echo -e -n "\n  ${DG}PRESS ENTER TO CONTINUE...${NC}"; read -r
+            run_installer
+            ;;
+        3) uninstall_clp ;;
+        0) return ;;
+        *) sleep 1 ;;
         esac
     done
 }
-
 uninstall_clp() {
     clear; hline; center "${R}⚠  COMPLETE UNINSTALLATION ${NC}"; hline; echo
     confirm "THIS WILL REMOVE ALL LIMITS & DATA. CONTINUE?" || return; echo
