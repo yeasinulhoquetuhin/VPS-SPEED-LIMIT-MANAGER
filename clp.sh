@@ -5,7 +5,7 @@
 # TG: @TuhinBroh
 # ==============================================================================
 
-VERSION="0.0.8 BETA"
+VERSION="0.0.9 BETA"
 
 CORE_FILE="/usr/local/bin/.tdz_network_core"
 
