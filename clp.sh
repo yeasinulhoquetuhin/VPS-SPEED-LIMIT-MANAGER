@@ -7,7 +7,7 @@
 # ==============================================================================
 
 # ===== VERSION =====
-VERSION="0.0.8 BETA"
+VERSION="0.0.9 BETA"
 
 # ===== AUTO DETECT ACTIVE INTERFACE =====
 detect_active_interface() {
