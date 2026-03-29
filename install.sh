@@ -1,13 +1,13 @@
 #!/bin/bash
 # ==============================================================================
 # TDZ NETWORK CONTROL
-# V0.0.9 BETA (Some Bug Fixes!)
+# V0.0.8 BETA (Some Bug Fixes!)
 # x-credit: https://info.tuhinbro.website
 # TG: @TuhinBroh
 # ==============================================================================
 
 # ===== VERSION =====
-VERSION="0.0.8 BETA"
+VERSION="0.0.9 BETA"
 
 # ===== AUTO DETECT ACTIVE INTERFACE =====
 detect_active_interface() {
