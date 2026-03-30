@@ -7,7 +7,7 @@
   <img src="https://img.shields.io/badge/Bash-Script-green?style=for-the-badge&logo=gnu-bash" alt="Bash">
   <img <p align="center">
   <img <p align="center">
-  <img src="https://img.shields.io/badge/License-Apache%202.0-purple?style=for-the-badge&logo=apache" alt="License">
+  <img src="https://img.shields.io/badge/License-Apache%202.0-orange?style=for-the-badge&logo=apache" alt="License">
 </p>
 
 <p align="center">
