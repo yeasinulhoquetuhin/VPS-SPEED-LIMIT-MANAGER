@@ -5,7 +5,9 @@
   <img src="https://img.shields.io/badge/Version-0.0.8%20BETA-blue?style=for-the-badge&logo=appveyor" alt="Version">
   <img src="https://img.shields.io/badge/OS-Ubuntu%20%7C%20Debian-orange?style=for-the-badge&logo=linux" alt="OS">
   <img src="https://img.shields.io/badge/Bash-Script-green?style=for-the-badge&logo=gnu-bash" alt="Bash">
-  <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="License">
+  <img <p align="center">
+  <img <p align="center">
+  <img src="https://img.shields.io/badge/License-Apache%202.0-purple?style=for-the-badge&logo=apache" alt="License">
 </p>
 
 <p align="center">
